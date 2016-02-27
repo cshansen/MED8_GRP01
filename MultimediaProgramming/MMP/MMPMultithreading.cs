@@ -3,21 +3,27 @@ using System.Threading;
 
 namespace MMPProject
 {
-    class ThreadTest
+    // Threads share data if they have a common reference to the same object instance.
+    // A thread, while blocked, doesn't consume CPU resources.
+
+
+    class ThreadSafe
     {
+        static bool done;
+        static readonly object locker = new object();
+
         static void Main()
         {
-            Thread t = new Thread(WriteY);          // Kick off a new thread
-            t.Start();                               // running WriteY()
-
-            // Simultaneously, do something on the main thread.
-            for (int i = 0; i < 10000; i++) Console.Write("x");
-            
+            new Thread(Go).Start();
+            Go();
         }
 
-        static void WriteY()
+        static void Go()
         {
-            for (int i = 0; i < 10000; i++) Console.Write("y");
+            lock (locker)
+            {
+                if (!done) { Console.WriteLine("Done"); done = true; }
+            }
         }
     }
 }
